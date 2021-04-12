@@ -1,6 +1,6 @@
 import numpy as np
 import time
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # import evaluate function
 from read_model import calculate_energy
@@ -50,7 +50,7 @@ def positive_span_opt( f , x0 , x_bounds , tol , a0 , da , n_iter ):
         # decising what to do next
         if index == 0:
 
-            a = [ a[j] - da for j in range(dim) ]
+            a = [ a[j]*da for j in range(dim) ]
 
         elif i > n_iter:
 
@@ -102,17 +102,34 @@ def eval_x( f , x_list , x_bounds , dim ):
     return y_list
 
 
-( x_soln , xc_list ) = positive_span_opt( calculate_energy , x0 , x_bounds , [ 0.01 , 0.05 ] , [ 1 ,5 ] , 0.05 , 50 )
+# calling method
+( x_soln , xc_list ) = positive_span_opt( calculate_energy , x0 , x_bounds , [ 0.0001 , 0.0010 ] , [ 1 , 100 ] , 0.618 , 100 )
 
 t_end = time.time()
 
+# printing list of centers 
 for xc in xc_list:
     print( xc )
     print( '\n' )
 
-#fig , ax = plt.subplots()
-#ax.plot(  )
-#plt.show()
+dist_list = []
+angle_list = []
+
+fh = open('convergence_phi.out','w')
+
+for xc in xc_list:
+    dist_list.append( xc[0] )
+    angle_list.append( xc[1] )
+    fh.write( str(xc[0]) + "\t" + str(xc[1]) + "\n" )
+
+fh.close()
+
+fig , ax = plt.subplots()
+ax.plot( angle_list , dist_list )
+ax.set_title( "Convergence of the Direct Search Algorithm" )
+ax.set_xlabel( "Bond Angle (Degrees)" )
+ax.set_ylabel( "Bond Distance (Angstroms)" )
+plt.show()
 
 print("solution: {}".format(x_soln))
 print("time elapsed: {}".format(t_end - t0))
